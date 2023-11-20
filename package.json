@@ -1,0 +1,39 @@
+{
+  "name": "daikon-nearley",
+  "version": "0.0.1",
+  "description": "Nearley syntax definitions for Daikon.",
+  "main": "index.js",
+  "scripts": {
+    "build:expressions": "nearleyc syntaxes/expressions.ne -o src/compiled/expressions.definition.cjs",
+    "build:expressions:watch": "nodemon --watch syntaxes/expressions.ne --exec \"npm run build:expressions\"",
+    "build:functions": "nearleyc syntaxes/functions.ne -o src/compiled/functions.definition.cjs",
+    "build:functions:watch": "nodemon --watch syntaxes/functions.ne --exec \"npm run build:functions\"",
+    "build:values": "nearleyc syntaxes/values.ne -o src/compiled/values.definition.cjs",
+    "build:values:watch": "nodemon --watch syntaxes/values.ne --exec \"npm run build:values\"",
+    "build:common": "nearleyc syntaxes/common.ne -o src/compiled/common.definition.cjs",
+    "build:common:watch": "nodemon --watch syntaxes/common.ne --exec \"npm run build:common\"",
+    "build:tsc": "tsc",
+    "build:tsc:watch": "tsc --watch",
+    "build": "npm run build:expressions && npm run build:functions && npm run build:values && npm run build:common && npm run build:tsc",
+    "build:watch": "concurrently \"npm run build:expressions:watch\" \"npm run build:functions:watch\" \"npm run build:values:watch\" \"npm run build:common:watch\" \"npm run build:tsc:watch\"",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "@types/nearley": "^2.11.5",
+    "@types/node": "^20.9.1",
+    "concurrently": "^8.2.2",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "nearley": "^2.20.1"
+  }
+}
