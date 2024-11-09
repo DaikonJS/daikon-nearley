@@ -77,7 +77,7 @@ const lexer = moo.compile({
     match: /'(?:\\['\\]|[^\n'\\])*'/,
     value: (s) => s.slice(1, -1),
   },
-  regex: /\/(?:\\\/|[^\/\n])*\/[gimuy]*/,
+  regex: /\/(?!\/)(?:\\\/|[^\/\n])*\/[gimuy]*/,
   nullPrimitive: /null/,
 
   // logical operators
@@ -110,9 +110,17 @@ const lexer = moo.compile({
   comma: /,/,
 
 
-  rgba: /rgba/,
-  rgb: /rgb/,
-  hex: /hex/,
+  rgba: /\brgba(?=\()/,
+  rgb: /\brgb(?=\()/,
+  hex: /\bhex(?=\()/,
+  url: /\burl(?=\()/,
+  path: /\bpath(?=\()/,
+
+  castString: /\bstring(?=\()/,
+  castNumber: /\bnumber(?=\()/,
+  castBoolean: /\bboolean(?=\()/,
+  castArray: /\barray(?=\()/,
+
 
   // functions look like `fn.hello` or `fn.add`
   fn: /fn\.[a-zA-Z]+/,
@@ -153,14 +161,14 @@ const lexer = moo.compile({
   div: /\//,
   mod: /%/,
 
-  argName: /[a-z]+/,
+  
 
   // Property Names are everything from the start of the line until the first `=`
   // (excluding the `=`). They can contain most characters and whitespace, but not
   // periods, commas, or equals signs.
-  propertyName: /[^.,=\n]+/,
+  propertyName: /^[^=]+?(?=\s*=[^=])/,
 
-
+  argName: /[a-z]+/,
 
 });
 %}

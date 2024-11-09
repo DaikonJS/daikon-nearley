@@ -4,8 +4,8 @@
 @lexer lexer
 
 PropertyBlock ->
-    PropertyName %ws:* %assignment %ws:* Literal {% ([a,,,,b]) => ({ ...a, ...b }) %}
-  | PropertyName %ws:* %assignment %bang %ws:* Expression {% ([a,,,,,b]) => ({ ...a, ...b }) %}
+    PropertyName _ %assignment _ Literal {% ([a,,,,b]) => ({ ...a, ...b }) %}
+  | PropertyName _ %assignment %bang _ Expression {% ([a,,,,,b]) => ({ ...a, ...b }) %}
 
 
 PropertyName -> %propertyName {% ([a]) => ({ slug: a.text.trim() }) %}

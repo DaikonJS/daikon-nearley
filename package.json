@@ -1,8 +1,8 @@
 {
-  "name": "daikon-nearley",
-  "version": "0.0.1",
+  "name": "@daikonjs/nearley",
+  "version": "0.0.2",
   "description": "Nearley syntax definitions for Daikon.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build:expressions": "nearleyc syntaxes/expressions.ne -o src/compiled/expressions.definition.cjs",
     "build:expressions:watch": "nodemon --watch syntaxes/expressions.ne --exec \"npm run build:expressions\"",

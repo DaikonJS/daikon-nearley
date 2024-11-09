@@ -4,13 +4,15 @@
 Literal ->
     Number {% id %}
   | String {% id %}
-  | %boolean {% ([a]) => ({ value: a.value, type: "boolean" }) %}
-  | %bang Literal {% ([, b]) => ({ value: !b, type: "boolean" }) %}
+  | Boolean {% id %}
+  | %bang Literal {% ([, b]) => ({ value: !b.value, type: "boolean" }) %}
   | Array {% ([a]) => ({ value: a, type: "array" }) %}
-  | RegExp {% ([a]) => ({ value: a, type: "regex" }) %}
+  | RegExp {% id %}
   | %nullPrimitive {% () => ({ value: null, type: "null" }) %}
   | Color {% id %}
   | Function {% id %}
+  | URL {% id %}
+  | Path {% id %}
 
 Indexable ->
   Number {% id %}
@@ -26,35 +28,49 @@ Function ->
   
 FunctionArgs ->
     Literal {% ([a]) => [a] %}
-  | Literal %ws:* FunctionArgs {% ([a,,b]) => [a, ...b] %}
+  | Literal _ FunctionArgs {% ([a,,b]) => [a, ...b] %}
 
 
 Color ->
-    %rgb %parenOpen %ws:* ColorRGBArgs %ws:* %parenClose {% ([,,,a]) => a %}
-  | %rgba %parenOpen %ws:* ColorRGBAArgs %ws:* %parenClose {% ([,,,a]) => a %}
+    %rgb %parenOpen _ ColorRGBArgs _ %parenClose {% ([,,,a]) => a %}
+  | %rgba %parenOpen _ ColorRGBAArgs _ %parenClose {% ([,,,a]) => a %}
   | ColorHex {% id %}
 
 ColorRGBArgs ->
-    %number %ws:* %comma %ws:* %number %ws:* %comma %ws:* %number {% ([a,,,,b,,,,c,,,,d]) => ({ value: [a.value, b.value, c.value], type: "colorRGB" }) %}
+    %number _ %comma _ %number _ %comma _ %number {% ([a,,,,b,,,,c,,,,d]) => ({ value: [a.value, b.value, c.value], type: "colorRGB" }) %}
 
 ColorRGBAArgs ->
-    %number %ws:* %comma %ws:* %number %ws:* %comma %ws:* %number %ws:* %comma %ws:* %number {% ([a,,,,b,,,,c,,,,d]) => ({ value: [a.value, b.value, c.value, d.value], type: "colorRGBA" }) %}
+    %number _ %comma _ %number _ %comma _ %number _ %comma _ %number {% ([a,,,,b,,,,c,,,,d]) => ({ value: [a.value, b.value, c.value, d.value], type: "colorRGBA" }) %}
 
 ColorHex ->
-    %hex %parenOpen %ws:* %colorHex %ws:* %parenClose {% ([,,,a]) => ({ value: a.value, type: "colorHex" }) %}
+    %hex %parenOpen _ %colorHex _ %parenClose {% ([,,,a]) => ({ value: a.value, type: "colorHex" }) %}
 
-Number -> %number {% ([a]) => ({ value: a.value, type: "number" }) %}
+URL ->
+    %url %parenOpen _ String _ %parenClose {% ([,,,a]) => ({ value: a.value, type: "url" }) %}
+
+Path ->
+    %path %parenOpen _ String _ %parenClose {% ([,,,a]) => ({ value: a.value, type: "path" }) %}
+
+Number ->
+    %number {% ([a]) => ({ value: a.value, type: "number" }) %}
+  | %castNumber %parenOpen _ Literal _ %parenClose {% ([,,,a]) => ({ value: Number(a.value), type: "number" }) %}
+
 String ->
     %stringDouble {% ([a]) => ({ value: a.value, type: "string" }) %}
   | %stringSingle {% ([a]) => ({ value: a.value, type: "string" }) %}
+  | %castString %parenOpen _ Literal _ %parenClose {% ([,,,a]) => ({ value: String(a.value), type: "string" }) %}
+
+Boolean ->
+    %boolean {% ([a]) => ({ value: a.value, type: "boolean" }) %}
+  | %castBoolean %parenOpen _ Literal _ %parenClose {% ([,,,a]) => ({ value: Boolean(a.value), type: "boolean" }) %}
 
 Array ->
-    %BrackOpen %ws:* %BrackClose {% () => ({ value: [], type: "array" }) %}
-  | %BrackOpen %ws:* ArrayContents %ws:* %BrackClose {% ([,,a,,]) => ({ value: a, type: "array" }) %}
+    %BrackOpen _ %BrackClose {% () => ({ value: [], type: "array" }) %}
+  | %BrackOpen _ ArrayContents _ %BrackClose {% ([,,a,,]) => ({ value: a, type: "array" }) %}
 
 ArrayContents ->
     Literal {% ([a]) => [a] %}
-  | Literal %ws:* %comma %ws:* ArrayContents {% ([a, , , , b]) => [a, ...b] %}
+  | Literal _ %comma _ ArrayContents {% ([a, , , , b]) => [a, ...b] %}
 
 
 RegExp ->
@@ -63,6 +79,8 @@ RegExp ->
       const modifiers = a.value.slice(a.value.lastIndexOf("/") + 1);
       // remove the leading and trailing slashes
       const regex = a.value.slice(1, a.value.lastIndexOf("/"));
-      return new RegExp(regex, modifiers);
+      return { value: new RegExp(regex, modifiers), type: "regex" }
     }%}
 
+
+_ -> %ws:* {% () => null %}

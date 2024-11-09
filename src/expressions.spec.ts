@@ -124,8 +124,13 @@ describe("Expression Parser", () => {
       type: "number",
       value: 1,
     });
-    // expect(await parseExpression('get "a" in "rain"')).toStrictEqual([1]);
-    // expect(await parseExpression('get /a/g in "rain"')).toStrictEqual([1]);
+    expect(await parseExpression('get "a" in "rain"')).toStrictEqual([1]);
+    expect(
+      await parseExpression('get /a/ in "rain on my parade"')
+    ).toStrictEqual([1]);
+    expect(
+      await parseExpression('get /a/g in "rain on my parade"')
+    ).toStrictEqual([1, 12, 14]);
     expect(await parseExpression('indexOf "t" "this is a test"')).toStrictEqual(
       {
         type: "number",
@@ -353,6 +358,58 @@ describe("Expression Parser", () => {
     expect(await parseExpression("1 + 2")).toStrictEqual({
       type: "number",
       value: 3,
+    });
+  });
+
+  it("should parse boolean expressions", async () => {
+    // Equality
+    expect(await parseExpression("true == false")).toStrictEqual({
+      type: "boolean",
+      value: false,
+    });
+    expect(await parseExpression("true != false")).toStrictEqual({
+      type: "boolean",
+      value: true,
+    });
+    expect(await parseExpression("true == true")).toStrictEqual({
+      type: "boolean",
+      value: true,
+    });
+    expect(await parseExpression("true != true")).toStrictEqual({
+      type: "boolean",
+      value: false,
+    });
+
+    // Logical operators
+    expect(await parseExpression("true && false")).toStrictEqual({
+      type: "boolean",
+      value: false,
+    });
+    expect(await parseExpression("true || false")).toStrictEqual({
+      type: "boolean",
+      value: true,
+    });
+    expect(await parseExpression("true && true")).toStrictEqual({
+      type: "boolean",
+      value: true,
+    });
+    expect(await parseExpression("true || true")).toStrictEqual({
+      type: "boolean",
+      value: true,
+    });
+    expect(await parseExpression("false && false")).toStrictEqual({
+      type: "boolean",
+      value: false,
+    });
+    expect(await parseExpression("false || false")).toStrictEqual({
+      type: "boolean",
+      value: false,
+    });
+
+    // Inversion
+    expect(await parseExpression("true == !false")).toStrictEqual({
+      type: "boolean",
+      value: true,
     });
   });
 });

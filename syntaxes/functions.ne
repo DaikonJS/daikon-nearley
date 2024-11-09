@@ -7,8 +7,8 @@ Block -> Function {% id %}
 
 
 Function ->
-    %BrackOpen %fn %ws:* %parenOpen %ws:* FunctionArgs %ws:* %parenClose %BrackClose {% ([,a,,,,b]) => ({ slug: a.value, args: b }) %}
-  | %BrackOpen %fn %ws:* %BrackClose {% ([,a]) => ({ slug: a.value, args: {} }) %}
+    %BrackOpen %fn _ %parenOpen _ FunctionArgs _ %parenClose %BrackClose {% ([,a,,,,b]) => ({ slug: a.value, args: b }) %}
+  | %BrackOpen %fn _ %BrackClose {% ([,a]) => ({ slug: a.value, args: {} }) %}
 
 FunctionArgs ->
     RequiredArgs {% id %}
@@ -16,8 +16,8 @@ FunctionArgs ->
 
 RequiredArgs ->
     %argName {% ([a]) => ({ [a.text]: { required: true } }) %}
-  | %argName %ws:* %comma %ws:* FunctionArgs {% ([a,,,,b]) => ({ [a.text]: { required: true }, ...b }) %}
+  | %argName _ %comma _ FunctionArgs {% ([a,,,,b]) => ({ [a.text]: { required: true }, ...b }) %}
 
 OptionalArgs ->
-    %argName %ws:* %assignment %ws:* Literal {% ([a,,,,b]) => ({ [a.text]: { required: false, default: b } }) %}
-  | %argName %ws:* %assignment %ws:* Literal %ws:* %comma %ws:* OptionalArgs {% ([a,,,,b,,,,c]) => ({ [a.text]: { required: false, default: b }, ...c }) %}
+    %argName _ %assignment _ Literal {% ([a,,,,b]) => ({ [a.text]: { required: false, default: b } }) %}
+  | %argName _ %assignment _ Literal _ %comma _ OptionalArgs {% ([a,,,,b,,,,c]) => ({ [a.text]: { required: false, default: b }, ...c }) %}
